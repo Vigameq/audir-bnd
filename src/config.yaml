@@ -1,0 +1,15 @@
+database:
+  development:
+    username: "doadmin"
+    password: "AVNS_HzqT_EGtuB7cB7aUepf"
+    host: "audir-dev-db-do-user-8796932-0.h.db.ondigitalocean.com"
+    database: "development"
+    port: "25060"
+    sslmode: "require"
+
+folders:
+  profile_pic: "uploads/profile_pictures/"
+  standard_audit_template_path: "uploads/standard_template/StandardAuditTemplate.xlsx"
+  standard_audit_plan_path: "uploads/standard_template/StandardAuditPlan.xlsx"
+  uploaded_template_path: "uploads/uploaded_template/"
+
