@@ -57,3 +57,15 @@ def list_templates(data, environment):
         return sorted_grouped_data
     else:
         return "Issue fetching Templates"
+
+
+def update_template_questions(data, environment):
+    query = f"""
+            UPDATE audir_templates
+            SET questions = '{json.dumps(data.get("questions"))}'
+            WHERE id = {data.get("template_id")};
+        """
+    result, status = db_connector.write_query(query, environment)
+    if status == 200:
+        return {'message': 'Template Questions Updated Successfully'}, status
+    return {'message': result}, 409

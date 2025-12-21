@@ -99,6 +99,66 @@ def upload_template():
     except Exception as e:
         return {"error": str(e)}, 400
 
+@app.route("/audire/api/updateTemplateQuestions", methods=['POST'])
+def update_template_questions():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        update_response, status_code = audir_template.update_template_questions(data, environment)
+        return update_response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+@app.route("/audire/api/listUsers", methods=['POST'])
+def list_users():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        users_response = audir_user.list_users(data, environment)
+        return users_response, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+@app.route("/audire/api/updateUser", methods=['POST'])
+def update_user():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        update_response, status_code = audir_user.update_user(data, environment)
+        return update_response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+@app.route("/audire/api/updatePassword", methods=['POST'])
+def update_password():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        update_response, status_code = audir_user.update_password(data, environment)
+        return update_response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+@app.route("/audire/api/deleteUser", methods=['POST'])
+def delete_user():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        delete_response, status_code = audir_user.delete_user(data, environment)
+        return delete_response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+@app.route("/audire/api/dashboardSummary", methods=['POST'])
+def dashboard_summary():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        summary_response, status_code = audir_audit.dashboard_summary(data, environment)
+        return summary_response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
 @app.route("/audire/api/planItems", methods=['POST'])
 def plan_items():
     data = request.json
