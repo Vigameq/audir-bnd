@@ -149,6 +149,16 @@ def delete_user():
     except Exception as e:
         return {"error": str(e)}, 400
 
+@app.route("/audire/api/dashboardSummary", methods=['POST'])
+def dashboard_summary():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        summary_response, status_code = audir_audit.dashboard_summary(data, environment)
+        return summary_response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
 @app.route("/audire/api/planItems", methods=['POST'])
 def plan_items():
     data = request.json
