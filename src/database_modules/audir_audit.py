@@ -174,7 +174,7 @@ def dashboard_summary(data, environment):
     if from_date and to_date:
         date_clause = f" AND start_date::date >= '{from_date}' AND start_date::date <= '{to_date}'"
     query = f"""
-                SELECT audit_status, start_date, end_date, auditors
+                SELECT audit_status, start_date, end_date, auditors, auditees
                 FROM audir_audit
                 WHERE email IN (
                     SELECT email
@@ -213,8 +213,9 @@ def dashboard_summary(data, environment):
     now = datetime.utcnow()
     monthly_counts = {i: 0 for i in range(1, 13)}
     auditor_stats = {}
+    auditee_stats = {}
 
-    for status_value, start_date, end_date, auditors in rows:
+    for status_value, start_date, end_date, auditors, auditees in rows:
         status_key = str(status_value or '').lower()
         if status_key in status_counts:
             status_counts[status_key] += 1
@@ -234,6 +235,16 @@ def dashboard_summary(data, environment):
             if status_key in ('submitted', 'completed'):
                 auditor_stats[auditor_email]["completed"] += 1
 
+        auditees_list = []
+        if auditees:
+            auditees_list = [item.strip().lower() for item in str(auditees).split(',') if item.strip()]
+        for auditee_email in auditees_list:
+            if auditee_email not in auditee_stats:
+                auditee_stats[auditee_email] = {"audits": 0, "completed": 0}
+            auditee_stats[auditee_email]["audits"] += 1
+            if status_key in ('submitted', 'completed'):
+                auditee_stats[auditee_email]["completed"] += 1
+
     completed_total = status_counts["submitted"] + status_counts["completed"]
     completion_rate = round((completed_total / total) * 100) if total else 0
 
@@ -252,6 +263,16 @@ def dashboard_summary(data, environment):
         })
     auditor_list = sorted(auditor_list, key=lambda x: x["audits"], reverse=True)[:6]
 
+    auditee_list = []
+    for auditee_email, stats in auditee_stats.items():
+        completion = round((stats["completed"] / stats["audits"]) * 100) if stats["audits"] else 0
+        auditee_list.append({
+            "name": email_to_name.get(auditee_email, auditee_email),
+            "audits": stats["audits"],
+            "completion": completion
+        })
+    auditee_list = sorted(auditee_list, key=lambda x: x["audits"], reverse=True)[:6]
+
     return {
         "metrics": {
             "total_audits": total,
@@ -267,5 +288,6 @@ def dashboard_summary(data, environment):
             {"label": "Overdue", "count": overdue}
         ],
         "monthly": monthly,
-        "auditors": auditor_list
+        "auditors": auditor_list,
+        "auditees": auditee_list
     }, 200
