@@ -63,12 +63,22 @@ def get_image(image_id):
 @app.route('/audire/api/downloadAuditTemplate', methods=['Get'])
 def download_audit_template():
     standard_audit_template_path = load_env.folder_env()['standard_audit_template_path']
-    return send_file(standard_audit_template_path, mimetype='application/vnd.ms-excel')
+    return send_file(
+        standard_audit_template_path,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name='Audit_Template.xlsx'
+    )
 
 @app.route('/audire/api/downloadAuditPlan', methods=['Get'])
 def download_audit_plan():
     standard_audit_plan_path = load_env.folder_env()['standard_audit_plan_path']
-    return send_file(standard_audit_plan_path, mimetype='application/vnd.ms-excel')
+    return send_file(
+        standard_audit_plan_path,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name='Audit_Plan.xlsx'
+    )
 
 @app.route('/audire/api/uploadTemplate', methods=['POST'])
 def upload_template():
