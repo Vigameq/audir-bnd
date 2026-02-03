@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify, send_file
 
 from src.helpers import load_env
 from werkzeug.utils import secure_filename
-from src.database_modules import audir_user, audir_template, audir_plan, audir_audit
+from src.database_modules import audir_user, audir_template, audir_plan, audir_audit, audir_audit_questions
 
 import io
 import pandas as pd
@@ -119,6 +119,47 @@ def update_template_questions():
     except Exception as e:
         return {"error": str(e)}, 400
 
+
+@app.route("/audire/api/listAuditQuestionOverrides", methods=['POST'])
+def list_audit_question_overrides():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        overrides, status_code = audir_audit_questions.list_overrides(data, environment)
+        return overrides, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+@app.route("/audire/api/addAuditQuestion", methods=['POST'])
+def add_audit_question():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        add_response, status_code = audir_audit_questions.add_override(data, environment)
+        return add_response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+@app.route("/audire/api/updateAuditQuestion", methods=['POST'])
+def update_audit_question():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        update_response, status_code = audir_audit_questions.update_override(data, environment)
+        return update_response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+@app.route("/audire/api/deleteAuditQuestion", methods=['POST'])
+def delete_audit_question():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        delete_response, status_code = audir_audit_questions.delete_override(data, environment)
+        return delete_response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
 @app.route("/audire/api/listUsers", methods=['POST'])
 def list_users():
     data = request.json
@@ -166,6 +207,16 @@ def dashboard_summary():
     try:
         summary_response, status_code = audir_audit.dashboard_summary(data, environment)
         return summary_response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+@app.route("/audire/api/listAllAudits", methods=['POST'])
+def list_all_audits():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT) if data else DEFAULT_ENVIRONMENT
+    try:
+        response, status_code = audir_audit.list_all_audits(data or {}, environment)
+        return response, status_code
     except Exception as e:
         return {"error": str(e)}, 400
 

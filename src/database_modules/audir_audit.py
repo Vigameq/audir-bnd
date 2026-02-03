@@ -139,6 +139,67 @@ def list_parent_audits(data, environment):
         return "Issue fetching Parent Audits"
 
 
+def list_all_audits(data, environment):
+    email = (data.get("eMail") or "").lower()
+    if not email:
+        return {"message": "Email is required"}, 400
+
+    query = f"""
+                SELECT
+                    id,
+                    link_audit,
+                    audit_title,
+                    functions,
+                    template,
+                    function_template,
+                    start_date,
+                    end_date,
+                    auditors,
+                    auditees,
+                    city,
+                    country,
+                    audit_scope,
+                    audit_type,
+                    audit_status,
+                    email
+                FROM audir_audit
+                WHERE email IN (
+                    SELECT email
+                    FROM audir_users
+                    WHERE organisation = (
+                        SELECT organisation
+                        FROM audir_users
+                        WHERE email = '{email}'
+                        LIMIT 1
+                    )
+                );
+                """
+    rows, status = db_connector.read_all_query(query, environment)
+    if status != 200:
+        return {"message": rows}, status
+
+    columns = [
+        'id',
+        'link_audit',
+        'audit_title',
+        'functions',
+        'template',
+        'function_template',
+        'start_date',
+        'end_date',
+        'auditors',
+        'auditees',
+        'city',
+        'country',
+        'audit_scope',
+        'audit_type',
+        'audit_status',
+        'email'
+    ]
+    audit_data = [dict(zip(columns, row)) for row in rows]
+    return {"audit_data": audit_data}, 200
+
+
 def check_duplicate_audit(audit_title, environment):
     query = f"SELECT EXISTS(SELECT 1 FROM audir_audit WHERE audit_title = '{audit_title}')"
     query_data, status = db_connector.read_one_query(query, environment)
