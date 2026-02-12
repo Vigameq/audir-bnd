@@ -199,6 +199,23 @@ def list_all_audits(data, environment):
     audit_data = [dict(zip(columns, row)) for row in rows]
     return {"audit_data": audit_data}, 200
 
+def initiate_audit(data, environment):
+    audit_id = data.get("audit_id")
+    if not audit_id:
+        return {"message": "audit_id is required"}, 400
+
+    query = f"""
+        UPDATE audir_audit
+        SET audit_status = 'inprogress'
+        WHERE id = '{audit_id}'
+        RETURNING id, audit_status;
+    """
+    row, status = db_connector.read_one_query(query, environment)
+    if status != 200 or not row:
+        return {"message": "Audit not found or unable to initiate"}, 409
+
+    return {"message": "Audit initiated successfully", "audit_id": row[0], "audit_status": row[1]}, 200
+
 
 def check_duplicate_audit(audit_title, environment):
     query = f"SELECT EXISTS(SELECT 1 FROM audir_audit WHERE audit_title = '{audit_title}')"

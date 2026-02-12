@@ -240,6 +240,16 @@ def plan_audit():
     except Exception as e:
         return {"error": str(e)}, 400
 
+@app.route("/audire/api/initiateAudit", methods=['POST'])
+def initiate_audit():
+    data = request.json
+    environment = data.get('environment', DEFAULT_ENVIRONMENT)
+    try:
+        response, status_code = audir_audit.initiate_audit(data, environment)
+        return response, status_code
+    except Exception as e:
+        return {"error": str(e)}, 400
+
 @app.route("/audire/api/validateAuditPlan", methods=['POST'])
 def validate_audit_plan():
     try:
